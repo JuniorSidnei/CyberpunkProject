@@ -15,9 +15,17 @@ namespace CharacterSystem {
         Button8 = 1 << 8,
         Button9 = 1 << 9,
     }
+
+    public interface IInputSource {
+        void Update();
+        
+        bool HasAction(InputAction action);
+        bool HasActionDown(InputAction action);
+        bool HasActionUp(InputAction action);
+    }
     
     
-    public abstract class InputSource : ScriptableObject {
+    public abstract class InputSource : IInputSource {
 
         protected InputAction Action { private get; set; }
         protected InputAction ActionDown { private get; set; }

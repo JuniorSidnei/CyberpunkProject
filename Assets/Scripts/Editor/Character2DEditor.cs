@@ -9,22 +9,29 @@ using Types = Lunari.Tsuki.Runtime.Types;
 public class Character2DEditor : Editor {
     
     private SerializedObject m_sourceRef;
-    private SerializedProperty m_actions;
-    private TypeSelectorButton m_button;
+    private SerializedProperty m_actions, m_input;
+    private TypeSelectorButton m_actionsButton, m_inputButton;
 
     private void OnEnable() {
         m_sourceRef = serializedObject;
         m_actions = m_sourceRef.FindProperty("m_actions");
-        m_button = TypeSelectorButton.Of<CharacterAction>(new GUIContent("Add action"), OnTypeSelected);
+        m_input = m_sourceRef.FindProperty("m_input");
+        m_actionsButton = TypeSelectorButton.Of<CharacterAction>(new GUIContent("Add action"), OnActionTypeSelected);
+        m_inputButton = TypeSelectorButton.Of<InputSource>(new GUIContent("Input source"), OnInputTypeSelected);
     }
 
-    private void OnTypeSelected(Type type) {
+    private void OnInputTypeSelected(Type type) {
+        m_input.managedReferenceValue = Activator.CreateInstance(type);
+        m_input.serializedObject.ApplyModifiedProperties();
+        Undo.RegisterCreatedObjectUndo(target, "Input type selected");
+    }
+
+    private void OnActionTypeSelected(Type type) {
         m_actions.arraySize++;
         var element = m_actions.GetArrayElementAtIndex(m_actions.arraySize - 1);
         element.managedReferenceValue = Activator.CreateInstance(type);
-        
-        
-        m_sourceRef.ApplyModifiedProperties();
+        m_actions.serializedObject.ApplyModifiedProperties();
+        Undo.RegisterCreatedObjectUndo(target, "Action type selected");
     }
 
     public override void OnInspectorGUI() {
@@ -34,18 +41,16 @@ public class Character2DEditor : Editor {
     }
 
     void DisplayProperties() {
-        var properties = m_sourceRef.GetIterator().GetChildren();
-        foreach (var property in properties) {
-            if (SerializedProperty.EqualContents(property, m_actions)) {
-                m_button.OnInspectorGUI();
-                for (int i = 0; i < m_actions.arraySize; i++) {
-                    var element = m_actions.GetArrayElementAtIndex(i);
-                    EditorGUILayout.PropertyField(element, new GUIContent(element.displayName), true);
-                }                
-            }
-            else {
-                EditorGUILayout.PropertyField(property);
-            }
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField(m_input.type);
+        m_inputButton.OnInspectorGUI();
+        EditorGUILayout.EndHorizontal();
+        
+        m_actionsButton.OnInspectorGUI();
+        for (int i = 0; i < m_actions.arraySize; i++) {
+            var element = m_actions.GetArrayElementAtIndex(i);
+            EditorGUILayout.PropertyField(element, new GUIContent(element.type), true);
         }
     }
 }

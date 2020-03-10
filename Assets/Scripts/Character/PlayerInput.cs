@@ -2,7 +2,7 @@
 
 namespace CharacterSystem {
     
-    [CreateAssetMenu(menuName = "CharacterSystem/Input/PlayerInput")]
+    [System.Serializable]
     public class PlayerInput : InputSource {
         
         public override void Update() {

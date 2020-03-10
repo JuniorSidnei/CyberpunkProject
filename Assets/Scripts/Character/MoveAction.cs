@@ -9,7 +9,7 @@ namespace CharacterSystem {
         public float Speed = 50;
         public float InAirDrag = 0.5f, InGroundDrag = 14;
         
-        private InputSource m_input;
+        private IInputSource m_input;
         
         protected override void OnConfigure() {
             m_input = Character2D.Input;

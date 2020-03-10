@@ -22,15 +22,15 @@ namespace CharacterSystem {
 		[SerializeReference] 
 		private List<ICharacterAction> m_actions = new List<ICharacterAction>();
 		
-		public InputSource Input;
-        
-//		private float m_collisionRadius;
-//		private Vector2 m_bottomOffset, m_rightOffset, m_leftOffset;
+		[SerializeReference]
+		private IInputSource m_input;
+		
 		private Status m_status;
 		
 		public readonly QueuedEventDispatcher LocalDispatcher = new QueuedEventDispatcher();
 		
 		public Rigidbody2D Rigidbody { get; private set; }
+		public IInputSource Input => m_input;
 
 		public void SetStatus(Status status) {
 			m_status |= status;
@@ -62,7 +62,7 @@ namespace CharacterSystem {
 
 		private void Update() {
 //			CheckCollisions();
-			Input.Update();
+			m_input.Update();
 			LocalDispatcher.Emit(new OnCharacterUpdate());
 			LocalDispatcher.DispatchAll();
 		}
